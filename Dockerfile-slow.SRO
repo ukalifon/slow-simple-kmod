@@ -1,0 +1,25 @@
+ARG IMAGE=registry.access.redhat.com/ubi8/ubi
+
+FROM $IMAGE
+WORKDIR /build/
+
+# Expecting kmod software version as an input to the build
+ARG KMODVER
+
+# Grab the software from upstream
+RUN git clone https://github.com/openshift-psap/simple-kmod.git && \
+    sleep 1500
+WORKDIR simple-kmod
+
+# Expecting kernel version as an input to the build
+ARG KVER
+
+# Note, your host must have access to repos where kernel developement
+# packages can be installed. If it doesn't the following steps will
+# fail
+
+# Build the module
+RUN make all       KVER=${KVER} KMODVER=${KMODVER} && \
+    sleep 1500
+RUN make install   KVER=${KVER} KMODVER=${KMODVER} && \
+    sleep 1500
